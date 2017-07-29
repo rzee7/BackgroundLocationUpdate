@@ -21,6 +21,8 @@ namespace LocationUpdate
 
         #endregion
 
+        #region Activity LifeCycle
+
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
@@ -30,9 +32,22 @@ namespace LocationUpdate
 
             _serviceConnection = _serviceConnection ?? new ServiceConnection(null);
             _serviceConnection.ServiceConnected += _serviceConnection_ServiceConnected;
-            _serviceConnection.ServiceDisconnected += _serviceConnection_ServiceDisconnected; ;
+            _serviceConnection.ServiceDisconnected += _serviceConnection_ServiceDisconnected;
             StartLocationService();
         }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            StopLocationService();
+
+            _serviceConnection.ServiceConnected -= _serviceConnection_ServiceConnected;
+            _serviceConnection.ServiceDisconnected -= _serviceConnection_ServiceDisconnected;
+        }
+
+        #endregion
+
+        #region Location Service Stuff
 
         private void _serviceConnection_ServiceDisconnected(object sender, ServiceConnectedEventArgs e)
         {
@@ -45,7 +60,7 @@ namespace LocationUpdate
         private void _serviceConnection_ServiceConnected(object sender, ServiceConnectedEventArgs e)
         {
             //Service is connected and ready use.
-            if(Location!=null)
+            if (Location != null)
             {
                 Location.LocationChanged += Location_LocationChanged;
             }
@@ -55,8 +70,6 @@ namespace LocationUpdate
         {
             throw new NotImplementedException();
         }
-
-        #region Location Service Stuff
 
         public void StartLocationService()
         {
