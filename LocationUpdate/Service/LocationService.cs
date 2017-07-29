@@ -45,6 +45,7 @@ namespace LocationUpdate
         [return: GeneratedEnum]
         public override StartCommandResult OnStartCommand(Intent intent, [GeneratedEnum] StartCommandFlags flags, int startId)
         {
+            Console.WriteLine(nameof(OnStartCommand) + " OnStart Command");
             return StartCommandResult.Sticky;
         }
 
@@ -83,15 +84,16 @@ namespace LocationUpdate
 
                 //Execute when there is a location change.
                 CrossGeolocator.Current.PositionChanged += Current_PositionChanged;
+                Console.WriteLine(nameof(BroadCastLocation) + " Broadcast Location Started");
             }
         }
 
         private void Current_PositionChanged(object sender, PositionEventArgs e)
         {
+            Console.WriteLine(nameof(Current_PositionChanged) + " Location Changed");
             this.LocationChanged(this, e);   
         }
 
         #endregion
-
     }
 }

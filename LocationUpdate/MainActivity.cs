@@ -14,10 +14,14 @@ namespace LocationUpdate
     [Activity(Label = "LocationUpdate", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
     {
-
         #region Fields
 
         protected static ServiceConnection _serviceConnection;
+
+        //Controls
+        TextView _lblServiceStatus, _lblServiceConnectedTime, _lblBroadcastTimeInterval;
+        TextView _lblLatitude, _lblLongitude, _lblSpeedAccuracy;
+        public const int Location_BroadCastTime = 20; //Seconds; If you wants Minutes then, lets say 1 Min: 60 x 60 = 3600; 
 
         #endregion
 
@@ -30,35 +34,68 @@ namespace LocationUpdate
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
 
+            #region Controls Init
+
+            //Service
+            _lblServiceStatus = FindViewById<TextView>(Resource.Id.lblServiceStatus);
+            _lblServiceConnectedTime = FindViewById<TextView>(Resource.Id.lblServiceConnectedTime);
+            _lblBroadcastTimeInterval = FindViewById<TextView>(Resource.Id.lblServiceInterval);
+
+            //Location
+            _lblLatitude = FindViewById<TextView>(Resource.Id.lblLatitude);
+            _lblLongitude = FindViewById<TextView>(Resource.Id.lblLongitude);
+            _lblSpeedAccuracy = FindViewById<TextView>(Resource.Id.lblSpeedAccuracy);
+
+            #endregion
+
+            #region Service Connections
+
             _serviceConnection = _serviceConnection ?? new ServiceConnection(null);
             _serviceConnection.ServiceConnected += _serviceConnection_ServiceConnected;
             _serviceConnection.ServiceDisconnected += _serviceConnection_ServiceDisconnected;
             StartLocationService();
+
+            #endregion
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            StopLocationService();
+           // StopLocationService();
 
-            _serviceConnection.ServiceConnected -= _serviceConnection_ServiceConnected;
-            _serviceConnection.ServiceDisconnected -= _serviceConnection_ServiceDisconnected;
+            //_serviceConnection.ServiceConnected -= _serviceConnection_ServiceConnected;
+            //_serviceConnection.ServiceDisconnected -= _serviceConnection_ServiceDisconnected;
         }
 
         #endregion
 
         #region Location Service Stuff
-
+         
         private void _serviceConnection_ServiceDisconnected(object sender, ServiceConnectedEventArgs e)
         {
             if (Location != null)
             {
                 Location.LocationChanged -= Location_LocationChanged;
             }
+            Console.WriteLine(nameof(_serviceConnection_ServiceConnected) + " MainActivity ServiceConnection Service Disconnected");
         }
 
         private void _serviceConnection_ServiceConnected(object sender, ServiceConnectedEventArgs e)
         {
+            Console.WriteLine(nameof(_serviceConnection_ServiceConnected) + " MainActivity ServiceConnection Service Connected");
+            _lblServiceStatus.Text = "Connected";
+            _lblServiceConnectedTime.Text = string.Format("Connected @ {0}", DateTime.Now.ToString(@"hh\:mm tt"));
+
+            string bTime = "Broadcast Time: {0} {1}";
+            if (Location_BroadCastTime > 59) //In case dynamic values 
+            {
+                bTime = string.Format(bTime, Location_BroadCastTime, "Min");
+            }
+            else
+                bTime = string.Format(bTime, Location_BroadCastTime, "Sec");
+
+            _lblBroadcastTimeInterval.Text = bTime;
+            
             //Service is connected and ready use.
             if (Location != null)
             {
@@ -68,24 +105,33 @@ namespace LocationUpdate
 
         private void Location_LocationChanged(object sender, PositionEventArgs e)
         {
-            throw new NotImplementedException();
+            Console.WriteLine(nameof(Location_LocationChanged) + " Location " + e.Position.Latitude + " " + e.Position.Longitude);
+            RunOnUiThread(() =>
+            {
+                _lblLatitude.Text = "Latitude: " + e.Position.Latitude.ToString();
+                _lblLongitude.Text = "Longitude: " + e.Position.Longitude.ToString();
+                _lblSpeedAccuracy.Text = string.Format("Speed {0} | Accuracy {1:00.00} ", e.Position.Speed, e.Position.Accuracy);
+            });
         }
 
         public void StartLocationService()
         {
             new Task(() =>
             {
-                this.ApplicationContext.StartService(new Intent(this.ApplicationContext, typeof(LocationService)));
+                StartService(new Intent(this, typeof(LocationService)));
 
                 // bind our service (Android goes and finds the running service by type, and puts a reference
                 // on the binder to that service)
                 // The Intent tells the OS where to find our Service (the Context) and the Type of Service
                 // we're looking for (LocationService)
-                Intent locServiceIntent = new Intent(Android.App.Application.Context, typeof(LocationService));
+                Intent locServiceIntent = new Intent(this, typeof(LocationService));
 
                 // Finally, we can bind to the Service using our Intent and the ServiceConnection we
                 // created in a previous step.
-                ApplicationContext.BindService(locServiceIntent, _serviceConnection, Bind.AutoCreate);
+                BindService(locServiceIntent, _serviceConnection, Bind.AutoCreate);
+
+                Console.WriteLine(nameof(StartLocationService) + " Started Location Service");
+
             }).Start();
         }
 
@@ -94,7 +140,7 @@ namespace LocationUpdate
             // Unbind from the LocationService; otherwise, StopSelf (below) will not work:
             if (_serviceConnection != null)
             {
-                ApplicationContext.UnbindService(_serviceConnection);
+                UnbindService(_serviceConnection);
             }
 
             // Stop the LocationService:
@@ -102,6 +148,8 @@ namespace LocationUpdate
             {
                 Location.StopSelf();
             }
+
+            Console.WriteLine(nameof(StopLocationService) + " Stopped Location Service");
         }
 
         #endregion

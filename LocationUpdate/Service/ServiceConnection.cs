@@ -54,6 +54,8 @@ namespace LocationUpdate
                 this._binder = serviceBinder;
                 this._binder.IsBound = true;
 
+                Console.WriteLine(nameof(OnServiceConnected) + " OnService Connected");
+                
                 // Notify, service connected event
                 this.ServiceConnected(this, new ServiceConnectedEventArgs() { Binder = service });
 
@@ -64,6 +66,7 @@ namespace LocationUpdate
 
         public void OnServiceDisconnected(ComponentName name)
         {
+            Console.WriteLine(nameof(OnServiceDisconnected) + " OnService Disconnected");
             //Service Disconnected
             this._binder.IsBound = false;
             this.ServiceDisconnected(this, null);

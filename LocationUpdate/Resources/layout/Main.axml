@@ -35,7 +35,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textView3" />
+            android:id="@+id/lblServiceStatus" />
         <TextView
             android:text="Connected at 2:45PM"
             android:textAppearance="?android:attr/textAppearanceMedium"
@@ -87,14 +87,14 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/lblServiceConnectedTime"
+            android:id="@+id/lblLongitude"
             android:layout_marginTop="5dp" />
         <TextView
-            android:text="Broadcast Time 15 Min"
+            android:text="Speed | Accuracy"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/lblServiceInterval"
+            android:id="@+id/lblSpeedAccuracy"
             android:layout_marginTop="5dp" />
     </LinearLayout>
     <View
@@ -103,4 +103,20 @@
         android:background="@android:color/darker_gray"
         android:id="@+id/view1"
         android:layout_margin="35dp" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/linearLayout2"
+        android:gravity="center_vertical">
+        <TextView
+            android:text="{ rzee }"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView3"
+            android:gravity="center" />
+    </LinearLayout>
 </LinearLayout>
