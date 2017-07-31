@@ -13,7 +13,7 @@ namespace Location
         {
             InitializeComponent();
 
-            MainPage = new Location.MainPage();
+            MainPage = new NavigationPage(new MainPage());
         }
 
         protected override void OnStart()

@@ -1,13 +1,18 @@
-﻿ using System;
+﻿using Plugin.Geolocator.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Location.Service
+namespace Location
 {
-    public interface ILocationService
+    public interface ILocationServiceNormal
     {
-
+        void FetchLocation(Position currentPosition);
+    }
+    public interface ILocationServiceBinding
+    {
+        void FetchLocation(Position currentPosition);
     }
 }

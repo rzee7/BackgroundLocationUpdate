@@ -11,6 +11,7 @@ using LocationUpdate;
 using System.Threading.Tasks;
 using Android.Content;
 using Plugin.Geolocator.Abstractions;
+using Xamarin.Forms;
 
 namespace Location.Droid
 {
@@ -22,9 +23,7 @@ namespace Location.Droid
 
         protected static ServiceConnection _serviceConnection;
 
-        //Controls
-        TextView _lblServiceStatus, _lblServiceConnectedTime, _lblBroadcastTimeInterval;
-        TextView _lblLatitude, _lblLongitude, _lblSpeedAccuracy;
+       
         public const int Location_BroadCastTime = 20; //Seconds; If you wants Minutes then, lets say 1 Min: 60 x 60 = 3600; 
 
         #endregion
@@ -41,12 +40,13 @@ namespace Location.Droid
             _serviceConnection = _serviceConnection ?? new ServiceConnection(null);
             _serviceConnection.ServiceConnected += _serviceConnection_ServiceConnected;
             _serviceConnection.ServiceDisconnected += _serviceConnection_ServiceDisconnected;
-            StartLocationService();
+            
 
             #endregion
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
             LoadApplication(new App());
+            StartLocationService();
         }
 
         #region Location Service Stuff
@@ -63,8 +63,8 @@ namespace Location.Droid
         private void _serviceConnection_ServiceConnected(object sender, ServiceConnectedEventArgs e)
         {
             Console.WriteLine(nameof(_serviceConnection_ServiceConnected) + " MainActivity ServiceConnection Service Connected");
-            _lblServiceStatus.Text = "Connected";
-            _lblServiceConnectedTime.Text = string.Format("Connected @ {0}", DateTime.Now.ToString(@"hh\:mm tt"));
+            //_lblServiceStatus.Text = "Connected";
+            //_lblServiceConnectedTime.Text = string.Format("Connected @ {0}", DateTime.Now.ToString(@"hh\:mm tt"));
 
             string bTime = "Broadcast Time: {0} {1}";
             if (Location_BroadCastTime > 59) //In case dynamic values 
@@ -74,7 +74,7 @@ namespace Location.Droid
             else
                 bTime = string.Format(bTime, Location_BroadCastTime, "Sec");
 
-            _lblBroadcastTimeInterval.Text = bTime;
+            //_lblBroadcastTimeInterval.Text = bTime;
 
             //Service is connected and ready use.
             if (Location != null)
@@ -85,12 +85,11 @@ namespace Location.Droid
 
         private void Location_LocationChanged(object sender, PositionEventArgs e)
         {
-            Console.WriteLine(nameof(Location_LocationChanged) + " Location " + e.Position.Latitude + " " + e.Position.Longitude);
+            //Console.WriteLine(nameof(Location_LocationChanged) + " Location " + e.Position.Latitude + " " + e.Position.Longitude);
             RunOnUiThread(() =>
             {
-                _lblLatitude.Text = "Latitude: " + e.Position.Latitude.ToString();
-                _lblLongitude.Text = "Longitude: " + e.Position.Longitude.ToString();
-                _lblSpeedAccuracy.Text = string.Format("Speed {0} | Accuracy {1:00.00} ", e.Position.Speed, e.Position.Accuracy);
+                //This is with ViewModel approach.
+                DependencyService.Get<ILocationServiceBinding>().FetchLocation(e.Position);
             });
         }
 
